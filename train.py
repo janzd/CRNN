@@ -12,6 +12,9 @@ def set_gpus():
 def create_output_directory():
     output_subdir = create_result_subdir(cfg.output_dir)
     print('Output directory: ' + output_subdir)
+    files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    for f in files:
+        shutil.copy(f, output_subdir)
     return output_subdir
 
 def get_models():

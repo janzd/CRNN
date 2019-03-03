@@ -19,7 +19,7 @@ parser.add_argument('--nb_classes')
 
 #parser.add_argument('--lexicon_path')
 #parser.add_argument('--img_folder')
-parser.add_argument('--base_folder')
+parser.add_argument('--base_dir')
 
 parser.add_argument('--output_dir')
 parser.add_argument('--training_model_cp_filename')

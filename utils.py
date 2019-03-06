@@ -1,5 +1,7 @@
 import os, glob
-from keras.callbacks import ModelCheckpoint
+import numpy as np
+
+from keras.callbacks import ModelCheckpoint, Callback
 
 
 def create_result_subdir(result_dir):
@@ -113,7 +115,7 @@ class PredictionModelCheckpoint(Callback):
 
 class Evaluator(Callback):
 
-    def __init__(self, prediction_model, val_generator, period):
+    def __init__(self, prediction_model, val_generator, period=2000):
         self.prediction_model = prediction_model
         self.period = period
         self.val_generator = val_generator
@@ -137,15 +139,16 @@ class Evaluator(Callback):
             decay = self.model.optimizer.decay
             iterations = self.model.optimizer.iterations
             lr_with_decay = lr / (1. + decay * K.cast(iterations, K.dtype(decay)))
-            print("Decayed learning rate: %.8f" K.eval(lr_with_decay))
+            print("Decayed learning rate: %.8f" % K.eval(lr_with_decay))
         else:
-            print("Learning rate: %.8f" K.eval(self.model.optimizer.lr))
+            print("Learning rate: %.8f" % K.eval(self.model.optimizer.lr))
 
     def evaluate(self):
         correct_predictions = 0
         correct_char_predictions = 0       
 
-        x_val, y_val = next(self.val_generator)
+        x_val, y_val = self.val_generator[np.random.randint(0, int(val_generator.nb_samples / val_generator.batch_size))]
+        #x_val, y_val = next(self.val_generator)
 
         y_pred = self.prediction_model.predict(x_val)
 

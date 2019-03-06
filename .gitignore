@@ -1,6 +1,8 @@
 .pyc
 .py~
+__pycache__/
 
-results/
+result/
 data/
+tb_log/
 

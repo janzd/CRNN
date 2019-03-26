@@ -79,6 +79,14 @@ def instantiate_multigpu_model_if_multiple_gpus(training_model):
         training_model = multi_gpu_model(training_model, len(cfg.gpus))
     return training_model 
 
+def save_model_json(training_model, prediction_model, output_subdir):
+    training_model_json = training_model.to_json()
+    prediction_model_json = prediction_model.to_json()
+    with open(os.path.join(output_subdir, 'training_model.json'), 'w') as f:
+        f.write(training_model_json)
+    with open(os.path.join(output_subdir, 'prediction_model.json'), 'w') as f:
+        f.write(prediction_model_json)
+
 if __name__ == '__main__':
     set_gpus()
     output_subdir = create_output_directory()
@@ -92,5 +100,6 @@ if __name__ == '__main__':
     training_model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=opt)
     print(training_model.optimizer)
     print("Learning rate: " + str(K.eval(training_model.optimizer.lr)))
-    training_model.fit_generator(train_generator, steps_per_epoch=int(train_generator.nb_samples / train_generator.batch_size), epochs=cfg.nb_epochs, verbose=1, workers=cfg.nb_workers, use_multiprocessing=True, callbacks=callbacks)
+    save_model_json(training_model, prediction_model, output_subdir)
+    #training_model.fit_generator(train_generator, steps_per_epoch=int(train_generator.nb_samples / train_generator.batch_size), epochs=cfg.nb_epochs, verbose=1, workers=cfg.nb_workers, use_multiprocessing=True, callbacks=callbacks)
 

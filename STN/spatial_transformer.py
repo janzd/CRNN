@@ -1,6 +1,8 @@
 from keras.layers.core import Layer
 import tensorflow as tf
 
+from keras.models import Sequential
+
 class SpatialTransformer(Layer):
     """Spatial Transformer Layer
     Implements a spatial transformer layer as described in [1]_.
@@ -29,10 +31,23 @@ class SpatialTransformer(Layer):
         self.output_size = output_size
         super(SpatialTransformer, self).__init__(**kwargs)
 
+    #def build_locnet(self, input_shape):
+    #    if isinstance(self.locnet, dict):
+    #        self.locnet = Sequential.from_config([self.locnet])
+    #    self.locnet.build(input_shape)
+
     def build(self, input_shape):
         self.locnet.build(input_shape)
         self.trainable_weights = self.locnet.trainable_weights
         # self.constraints = self.locnet.constraints
+
+    def get_config(self):
+        config = super(SpatialTransformer, self).get_config()
+        config['localization_net'] = self.locnet
+        # say self. _localization_net  if you store the argument in __init__
+        config['output_size'] = self.output_size
+        # say self. _output_size  if you store the argument in __init__
+        return config
 
     def compute_output_shape(self, input_shape):
         output_size = self.output_size

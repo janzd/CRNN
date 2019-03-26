@@ -1,5 +1,6 @@
 import os, glob
 import numpy as np
+import cv2
 
 from keras.callbacks import ModelCheckpoint, Callback
 import keras.backend as K
@@ -173,3 +174,22 @@ class Evaluator(Callback):
                     correct_char_predictions += 1
 
         return correct_predictions / self.val_generator.batch_size, correct_char_predictions
+
+
+
+def pad_image(img, img_size, nb_channels):
+    # img_size : (width, height)
+    # loaded_img_shape : (height, width)
+    img_reshape = cv2.resize(img, (int(img_size[1] / img.shape[0] * img.shape[1]), img_size[1]))
+    if nb_channels == 1:
+        padding = np.zeros((img_size[1], img_size[0] - int(img_size[1] / img.shape[0] * img.shape[1])), dtype=np.int32)
+    else:
+        padding = np.zeros((img_size[1], img_size[0] - int(img_size[1] / img.shape[0] * img.shape[1]), nb_channels), dtype=np.int32)
+    img = np.concatenate([img_reshape, padding], axis=1)
+    return img
+
+def resize_image(img, img_size):
+    img = cv2.resize(img, img_size, interpolation=cv2.INTER_CUBIC)
+    img = np.asarray(img)
+    return img
+

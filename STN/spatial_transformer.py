@@ -31,11 +31,6 @@ class SpatialTransformer(Layer):
         self.output_size = output_size
         super(SpatialTransformer, self).__init__(**kwargs)
 
-    #def build_locnet(self, input_shape):
-    #    if isinstance(self.locnet, dict):
-    #        self.locnet = Sequential.from_config([self.locnet])
-    #    self.locnet.build(input_shape)
-
     def build(self, input_shape):
         self.locnet.build(input_shape)
         self.trainable_weights = self.locnet.trainable_weights

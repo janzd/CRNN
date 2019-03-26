@@ -8,7 +8,7 @@ Keras implementation of Convolutional Recurrent Neural Network for text recognit
 ### Training
 
 You can use the Synth90k dataset to train the model, but you can also use your own data. If you use your own data, some of the hyperparameters might not be optimal and you might want to try to find better values.
-To download the Synth90k dataset, go to this (page|http://www.robots.ox.ac.uk/~vgg/data/text/) and download the MJSynth dataset.
+To download the Synth90k dataset, go to this [page](http://www.robots.ox.ac.uk/~vgg/data/text/) and download the MJSynth dataset.
 
 Either put the Synth90k dataset in `data/Synth90k` or specify the path to the dataset using the `--base_dir` argument. 
 

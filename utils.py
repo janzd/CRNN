@@ -2,6 +2,7 @@ import os, glob
 import numpy as np
 
 from keras.callbacks import ModelCheckpoint, Callback
+import keras.backend as K
 
 
 def create_result_subdir(result_dir):
@@ -115,10 +116,13 @@ class PredictionModelCheckpoint(Callback):
 
 class Evaluator(Callback):
 
-    def __init__(self, prediction_model, val_generator, period=2000):
+    def __init__(self, prediction_model, val_generator, label_len, characters, optimizer, period=2000):
         self.prediction_model = prediction_model
         self.period = period
         self.val_generator = val_generator
+        self.label_len = label_len
+        self.characters = characters
+        self.optimizer = optimizer
 
     def on_batch_end(self, batch, logs=None):
         if ((batch+1) % self.period) == 0:
@@ -134,7 +138,7 @@ class Evaluator(Callback):
         print('After epoch %d' % epoch)
         print('Word level accuracy: %.3f' % accuracy)
         print('Correct character level predictions: %d' % correct_char_predictions)        
-        if cfg.optimizer == 'sgd':
+        if self.optimizer == 'sgd':
             lr = self.model.optimizer.lr
             decay = self.model.optimizer.decay
             iterations = self.model.optimizer.iterations
@@ -147,18 +151,18 @@ class Evaluator(Callback):
         correct_predictions = 0
         correct_char_predictions = 0       
 
-        x_val, y_val = self.val_generator[np.random.randint(0, int(val_generator.nb_samples / val_generator.batch_size))]
+        x_val, y_val = self.val_generator[np.random.randint(0, int(self.val_generator.nb_samples / self.val_generator.batch_size))]
         #x_val, y_val = next(self.val_generator)
 
         y_pred = self.prediction_model.predict(x_val)
 
         shape = y_pred[:, 2:, :].shape
         ctc_decode = K.ctc_decode(y_pred[:, 2:, :], input_length=np.ones(shape[0])*shape[1])[0][0]
-        ctc_out = K.get_value(ctc_decode)[:, :cfg.label_len]
+        ctc_out = K.get_value(ctc_decode)[:, :self.label_len]
 
-        for i in range(1000):
+        for i in range(self.val_generator.batch_size):
             print(ctc_out[i])
-            result_str = ''.join([cfg.characters[c] for c in ctc_out[i]])            
+            result_str = ''.join([self.characters[c] for c in ctc_out[i]])            
             result_str = result_str.replace('-', '')
             if result_str == y_val[i]:
                 correct_predictions += 1
@@ -168,4 +172,4 @@ class Evaluator(Callback):
                 if c1 == c2:
                     correct_char_predictions += 1
 
-        return correct_predictions*1.0/10, correct_char_predictions
+        return correct_predictions / self.val_generator.batch_size, correct_char_predictions

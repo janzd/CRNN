@@ -1,5 +1,7 @@
 import os
+import sys
 import shutil
+import logging
 from keras.optimizers import Adam, SGD
 from keras.callbacks import ReduceLROnPlateau, TensorBoard
 from keras.utils import multi_gpu_model
@@ -30,23 +32,23 @@ def get_models():
         return CRNN(cfg)
 
 def get_generators():
-	train_generator = TrainGenerator(base_dir=cfg.base_dir, 
-		                             annotation_file=os.path.join(cfg.base_dir, 'annotation_train.txt'),
-		                             batch_size=cfg.batch_size,
-		                             img_size=(cfg.width, cfg.height),
-		                             nb_channels=cfg.nb_channels,
-		                             timesteps=cfg.timesteps,
-		                             label_len=cfg.label_len,
-		                             characters=cfg.characters)
-	val_generator = ValGenerator(base_dir=cfg.base_dir,
-		                         annotation_file=os.path.join(cfg.base_dir, 'annotation_val.txt'),
-		                         batch_size=5000,
-		                         img_size=(cfg.width, cfg.height),
-		                         nb_channels=cfg.nb_channels,
-		                         timesteps=cfg.timesteps,
-		                         label_len=cfg.label_len,
-		                         characters=cfg.characters)
-	return train_generator, val_generator
+    train_generator = TrainGenerator(base_dir=cfg.base_dir, 
+                                     annotation_file=os.path.join(cfg.base_dir, 'annotation_train.txt'),
+                                     batch_size=cfg.batch_size,
+                                     img_size=(cfg.width, cfg.height),
+                                     nb_channels=cfg.nb_channels,
+                                     timesteps=cfg.timesteps,
+                                     label_len=cfg.label_len,
+                                     characters=cfg.characters)
+    val_generator = ValGenerator(base_dir=cfg.base_dir,
+                                 annotation_file=os.path.join(cfg.base_dir, 'annotation_val.txt'),
+                                 batch_size=5000,
+                                 img_size=(cfg.width, cfg.height),
+                                 nb_channels=cfg.nb_channels,
+                                 timesteps=cfg.timesteps,
+                                 label_len=cfg.label_len,
+                                 characters=cfg.characters)
+    return train_generator, val_generator
 
 def get_optimizer():
     if cfg.optimizer == 'sgd':
@@ -60,7 +62,7 @@ def get_optimizer():
 def get_callbacks(output_subdir, training_model, prediction_model, val_generator):
     training_model_checkpoint = MultiGPUModelCheckpoint(os.path.join(output_subdir, cfg.training_model_cp_filename), training_model, save_best_only=cfg.save_best_only, monitor='loss', mode='min')
     prediction_model_checkpoint = PredictionModelCheckpoint(os.path.join(output_subdir, cfg.prediction_model_cp_filename), prediction_model, save_best_only=cfg.save_best_only, monitor='loss', mode='min')
-    evaluator = Evaluator(prediction_model, val_generator, period=2000)
+    evaluator = Evaluator(prediction_model, val_generator, cfg.label_len, cfg.characters, cfg.optimizer, period=cfg.val_iter_period)
     lr_reducer = ReduceLROnPlateau(factor=cfg.lr_reduction_factor, patience=3, verbose=1, min_lr=0.00001)
     os.makedirs(cfg.tb_log, exist_ok=True)
     tensorboard = TensorBoard(log_dir=cfg.tb_log)
@@ -75,7 +77,7 @@ def load_weights_if_resume_training(training_model):
 def instantiate_multigpu_model_if_multiple_gpus(training_model):
     if len(cfg.gpus) > 1:
         training_model = multi_gpu_model(training_model, len(cfg.gpus))
-    return training_model
+    return training_model 
 
 if __name__ == '__main__':
     set_gpus()

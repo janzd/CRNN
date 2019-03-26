@@ -12,8 +12,7 @@ from STN.spatial_transformer import SpatialTransformer
 from models import CRNN, CRNN_STN
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_json_path', type=str, default='')
-parser.add_argument('--model_weights_path', type=str, default='')
+parser.add_argument('--model_path', type=str, default='')
 parser.add_argument('--data_path', type=str, default='')
 parser.add_argument('--gpus', type=int, nargs='*', default=[0])
 parser.add_argument('--characters', type=str, default='0123456789'+string.ascii_lowercase+'-')
@@ -101,6 +100,5 @@ if __name__ == '__main__':
     output_subdir = create_output_directory()
     data = collect_data()
     _, model = CRNN_STN(cfg)    
-    model.load_weights(cfg.model_weights_path)
-    #model = load_model(cfg.model_weights_path, custom_objects={'SpatialTransformer': SpatialTransformer})
+    model.load_weights(cfg.model_path)
     evaluate(model, data, output_subdir)

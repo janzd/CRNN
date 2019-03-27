@@ -29,11 +29,14 @@ A model trained on Synth90k will be available soon.
 
 ### Evaluation
 
-TBD
+Use `eval.py` to perform evaluation. You can either classify a single image or pass a directory with images that you want to classify. You also have to specify the path to a trained model.
 
-### Result examples
+#### Execution example
 
-TBD
+```
+python eval.py --model_path result/001/model.hdf5 --data_path path/to/your/data
+```
+
 
 
 

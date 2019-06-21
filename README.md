@@ -24,7 +24,7 @@ python train.py --batch_size 512 --gpus 0 1 2 3 --nb_workers 12
 
 You can resume training by setting `--resume_training` to True and defining the path to the model you want to resume training, `--load_model_path`.
 
-A model trained on Synth90k will be available soon.
+A pretrained model is available [here](https://drive.google.com/file/d/1hmtbUQC5HuLb1KOMozNwCKFoAPa56rtx/view?usp=sharing).
 
 
 ### Evaluation

@@ -37,6 +37,11 @@ Use `eval.py` to perform evaluation. You can either classify a single image or p
 python eval.py --model_path result/001/model.hdf5 --data_path path/to/your/data
 ```
 
+### Requirements
 
+TensorFlow 1.X (tested with 1.5 but I think it should work with other 1.X versions too)
+Keras 2.1.5 
+
+The code uses a standalone Keras installation with TF backend. It does not use Keras included in TF.
 
 

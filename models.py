@@ -102,6 +102,7 @@ def CRNN(cfg):
     c_6 = Conv2D(cfg.conv_filter_size[5], (3, 3), activation='relu', padding='same', name='conv_6')(p_5)
     c_7 = Conv2D(cfg.conv_filter_size[6], (3, 3), activation='relu', padding='same', name='conv_7')(c_6)
     bn_7 = BatchNormalization(name='bn_7')(c_7)
+    bn_7_shape = bn_7.get_shape()
 
     reshape = Reshape(target_shape=(int(bn_7_shape[1]), int(bn_7_shape[2] * bn_7_shape[3])), name='reshape')(bn_7)
 
